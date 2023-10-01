@@ -110,7 +110,7 @@ export class MetamaskConnector {
             serverPort: this.port
         });
 
-        open(`http://localhost:${this.port}/send-tx`);
+        open(`http://localhost:${this.port}/send-tx`, { app: { name: 'google chrome' } });
     }
 
 }
