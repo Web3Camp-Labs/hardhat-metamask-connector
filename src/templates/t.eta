@@ -1,0 +1,236 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardhat Metamask Connector</title>
+  <script>
+    let account;
+
+    function initialize() {
+      setTimeout(() => {
+        <% it.transactions.forEach(function(tx){ %>
+        <% if (tx.error != null) { %>
+        let error<%= tx.id %> = document.getElementById("errorBox<%= tx.id %>");
+        error<%= tx.id %>.style.display = "flex";
+        error<%= tx.id %>.innerText = '<%= tx.error %>';
+        <% } %>
+
+        <% if (tx.warning != null) { %>
+        let warning<%= tx.id %> = document.getElementById("warningBox<%= tx.id %>");
+        warning<%= tx.id %>.style.display = "flex";
+        warning<%= tx.id %>.innerText = '<%= tx.warning %>';
+        <% } %>
+
+        <% }) %>
+      }, 300);
+    }
+
+    async function connect() {
+      if (typeof window.ethereum !== 'undefined') {
+        console.log('MetaMask is installed!');
+      }
+      const accounts = await ethereum.request({
+        method: 'eth_requestAccounts'
+      });
+      updateAccounts(accounts)
+      ethereum.on('accountsChanged', function(accounts) {
+        updateAccounts(accounts);
+      });
+      <% if (it.chainId != null) { %>
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{
+            chainId: '<%= it.chainId %>'
+          }]
+        });
+      } catch (err) {
+        showGlobalError(err);
+      }
+      <% } %>
+    }
+
+    function updateAccounts(accounts) {
+      if (accounts.length > 0) {
+        account = accounts[0];
+        document.getElementById("wallet").innerText = 'Connected To: ' + accounts[0];
+      } else {
+        account = undefined;
+        document.getElementById("wallet").innerText = 'Not Connected';
+      }
+    }
+
+    <% it.transactions.forEach(function(tx){ %>
+    async function sendTransaction<%= tx.id %>() {
+      const transactionParameters = {
+        from: ethereum.selectedAddress,
+        <% if (tx.transaction.to != null) { %>
+        to: '<%= tx.transaction.to %>',
+        <% } %>
+        <% if (tx.transaction.nonce != null) { %>
+        nonce: '<%= tx.transaction.nonce %>',
+        <% } %>
+        <% if (tx.transaction.value != null) { %>
+        value: '<%= tx.transaction.value %>',
+        <% } %>
+        <% if (tx.transaction.chainId != null) { %>
+        chainId: '<%= tx.transaction.chainId %>',
+        <% } %>
+        <% if (tx.transaction.gasLimit != null) { %>
+        gas: '<%= tx.transaction.gasLimit %>',
+        <% } %>
+        <% if (tx.transaction.gasPrice != null) { %>
+        gasPrice: '<%= tx.transaction.gasPrice %>',
+        <% } %>
+        data: '<%= tx.transaction.data %>',
+      };
+      console.log(transactionParameters);
+      try {
+        const txHash = await ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [transactionParameters],
+        });
+        var xmlHttp = new XMLHttpRequest();
+        var url = "http://localhost:<%= it.serverPort %>/tx-result";
+        xmlHttp.open("POST", url, false); // false for synchronous request
+        xmlHttp.setRequestHeader("Content-Type", "application/json");
+        xmlHttp.send(JSON.stringify({
+          id: <%= tx.id %>,
+          hash: txHash
+        }));
+      } catch (err) {
+        let element = document.getElementById("errorBox<%= tx.id %>");
+        element.style.display = "flex";
+        element.innerText = err.message;
+      }
+    }
+    <% }) %>
+
+    function showGlobalError(err) {
+      let element = document.getElementById("errorBox");
+      element.style.display = "flex";
+      element.innerText = err.message;
+    }
+    initialize();
+    connect();
+  </script>
+
+  <style>
+    .myButton {
+      background-image: linear-gradient(135deg, #00a8f4, #15ede2);
+      border: none;
+      padding: 15px 32px;
+      text-align: center;
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: 0 0 16px 0 rgba(16, 205, 236, .25);
+      transition: box-shadow .2s;
+      color: #141414;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+    }
+
+    .myButton:hover {
+      background-image: linear-gradient(135deg, #00a8f4, #15ede2);
+      box-shadow: 0 0 24px 0 rgba(16, 205, 236, .5);
+      transition: box-shadow .2s;
+      color: #141414;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    .root {
+      background-color: #141414;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      width: 100%;
+      height: 100%;
+    }
+
+    .container {
+      border-radius: 10px;
+      border-width: 2px;
+      background-color: #222222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      gap: 1.5em;
+      margin: 2em;
+      padding: 1.5em;
+    }
+
+    .title {
+      font-size: 3rem;
+      color: whitesmoke;
+    }
+
+    .transactionLabel {
+      color: whitesmoke;
+    }
+
+    .subtitle {
+      color: whitesmoke;
+    }
+
+    .errorBox {
+      background-color: #FFC7D1;
+      border-style: solid;
+      border-width: 2px;
+      border-radius: 8px;
+      border-color: #C2000B;
+      padding: 1em;
+      display: none;
+    }
+
+    .warningBox {
+      background-color: #e8e9ae;
+      border-style: solid;
+      border-width: 2px;
+      border-radius: 8px;
+      border-color: #ecd346;
+      padding: 1em;
+      display: none;
+    }
+
+    .transitionBox {
+      display: flex;
+      flex-direction: column;
+      width: calc(100% - 2em);
+      border-style: solid;
+      border-color: #00a8f4;
+      border-radius: 8px;
+      border-width: 1px;
+      gap: 0.6em;
+      padding: 1em;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="root">
+    <div class="container">
+      <span class="title">Running in <%= it.network %> network</span>
+      <button onclick="connect()" id='b1' class="myButton"> Connect to MetaMask</button>
+      <span id="wallet" class="subtitle"></span>
+      <% it.transactions.forEach(function(tx){ %>
+      <div class="transitionBox">
+        <span class="transactionLabel"> Transaction <%= tx.id %></span>
+        <button onclick="sendTransaction<%= tx.id %>()" class="myButton">Send Transaction</button>
+        <div class="warningBox" id="warningBox<%= tx.id %>"></div>
+        <div class="errorBox" id="errorBox<%= tx.id %>"></div>
+      </div>
+      <% }) %>
+      <div class="errorBox" id="errorBox"></div>
+    </div>
+  </div>
+</body>
+
+</html>
