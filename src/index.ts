@@ -69,10 +69,11 @@ export class MetamaskConnector {
                     //                    let out = await f.call(signer, transaction);
                     //                    console.log(out);
                     //                    return Promise.resolve(out);
-                    let txId = this.txId++;
+                    // let txId = this.txId++;
+                    let txId = this.txId;
                     console.log("Going to run transaction: " + txId);
 
-                    await this.sendTransactions([new TransactionWrapper(txId, transaction)]);
+                    await this.sendTransactions([transaction]);
                     return new Promise(async (resolve, reject) => {
                         let checkInterval = setInterval(async () => {
                             console.log("Checking for transaction: " + txId);
