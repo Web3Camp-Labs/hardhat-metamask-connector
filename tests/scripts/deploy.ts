@@ -6,6 +6,9 @@ async function main() {
 
   let connector = new MetamaskConnector();
 
+  let signer = await connector.getSigner();
+  console.log("Signer: ", signer.address)
+
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
   const unlockTime = currentTimestampInSeconds + 60;
 
@@ -13,7 +16,7 @@ async function main() {
 
   const lock = await ethers.deployContract("Lock", [unlockTime], {
     value: lockedAmount,
-    signer: await connector.getSigner(),
+    signer: signer,
   });
 
   await lock.waitForDeployment();

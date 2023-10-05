@@ -119,13 +119,12 @@
 
   <style>
     .myButton {
-      background-image: linear-gradient(135deg, #00a8f4, #15ede2);
       border: none;
       padding: 15px 32px;
       text-align: center;
       border-radius: 10px;
       display: inline-block;
-      box-shadow: 0 0 16px 0 rgba(16, 205, 236, .25);
+      box-shadow: 0 0 16px 0 rgba(16, 205, 236, .025);
       transition: box-shadow .2s;
       color: #141414;
       cursor: pointer;
@@ -134,8 +133,7 @@
     }
 
     .myButton:hover {
-      background-image: linear-gradient(135deg, #00a8f4, #15ede2);
-      box-shadow: 0 0 24px 0 rgba(16, 205, 236, .5);
+      box-shadow: 0 5px 10px rgba(16, 205, 236, .05);
       transition: box-shadow .2s;
       color: #141414;
     }
@@ -145,7 +143,7 @@
     }
 
     .root {
-      background-color: #141414;
+      background-color: #ffffff;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -157,7 +155,7 @@
     .container {
       border-radius: 10px;
       border-width: 2px;
-      background-color: #222222;
+      background-color: #ffffff;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -169,33 +167,33 @@
 
     .title {
       font-size: 3rem;
-      color: whitesmoke;
+      color: black;
     }
 
     .transactionLabel {
-      color: whitesmoke;
+      color: black;
     }
 
     .subtitle {
-      color: whitesmoke;
+      color: black;
     }
 
     .errorBox {
-      background-color: #FFC7D1;
+      background-color: #ffffff;
       border-style: solid;
-      border-width: 2px;
+      border-width: 1px;
       border-radius: 8px;
-      border-color: #C2000B;
+      border-color: #000000;
       padding: 1em;
       display: none;
     }
 
     .warningBox {
-      background-color: #e8e9ae;
+      background-color: #ffffff;
       border-style: solid;
-      border-width: 2px;
+      border-width: 1px;
       border-radius: 8px;
-      border-color: #ecd346;
+      border-color: #000000;
       padding: 1em;
       display: none;
     }
@@ -205,7 +203,7 @@
       flex-direction: column;
       width: calc(100% - 2em);
       border-style: solid;
-      border-color: #00a8f4;
+      border-color: #000000;
       border-radius: 8px;
       border-width: 1px;
       gap: 0.6em;
