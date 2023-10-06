@@ -1,5 +1,29 @@
 # hardhat-metamask-connector
 
+Hardhat Metamask Connector is a tool to connect your metamask with your hardhat development environment, and let you say byebye to exposing your mnemonic or private key.
 
+# Install
 
+`npm install hardhat-metamask-connector` or `yarn hardhat-metamask-connector`
+
+```
+let connector = new MetamaskConnector();
+let signer = await connector.getSigner();
+```
+
+# Test
+
+There is a sample test hardhat project, just run `npm install` and `npx hardhat run scripts/deploy.ts` to make test.
+
+# The idea
+
+![](./hardhat-metamask-connector.jpg)
+
+# To be continue
+
+[ ] inject signer to ethers
+[ ] optimize the launch of browser
+[ ] optimize the webpage
+
+## Special thanks
 Based on the idea of [hardhat-metamask-client](https://github.com/deusfinance/Hardhat-metamask-client)
