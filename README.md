@@ -26,4 +26,4 @@ There is a sample test hardhat project, just run `npm install` and `npx hardhat 
 - [ ] Optimize the webpage  
 
 ## Special thanks
-Based on the idea of [hardhat-metamask-client](https://github.com/deusfinance/Hardhat-metamask-client)
+[hardhat-metamask-client](https://github.com/deusfinance/Hardhat-metamask-client)
