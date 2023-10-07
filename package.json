@@ -1,8 +1,10 @@
 {
-  "name": "hardhat-metamask-connector",
+  "name": "@web3camp/hardhat-metamask-connector",
   "version": "1.0.0",
-  "description": "",
+  "description": "A tool to connect your metamask with your hardhat development environment, and let you say bye-bye to exposing your mnemonic or private key",
   "main": "index.js",
+  "repository": "https://github.com/Web3Camp-Labs/hardhat-metamask-connector",
+  "homepage": "https://github.com/Web3Camp-Labs/hardhat-metamask-connector",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rimraf ./build && tsc",
