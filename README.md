@@ -9,6 +9,7 @@ Hardhat Metamask Connector is a tool to connect your metamask with your hardhat 
 ```
 let connector = new MetamaskConnector();
 let signer = await connector.getSigner();
+let signerAddr = await signer.getAddress();
 ```
 
 # Test

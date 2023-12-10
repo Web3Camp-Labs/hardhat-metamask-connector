@@ -7,7 +7,7 @@ async function main() {
   let connector = new MetamaskConnector();
 
   let signer = await connector.getSigner();
-  console.log("Signer: ", signer.address)
+  console.log("Signer Address: ", await signer.getAddress())
 
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
   const unlockTime = currentTimestampInSeconds + 60;
