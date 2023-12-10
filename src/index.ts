@@ -106,7 +106,10 @@ export class MetamaskConnector {
         this.html = eta.render("./t.eta", {
             transactions: txs,
             network: hre.network.name,
-            chainId: '0x' + hre.network.config.chainId!.toString(16),
+            // `31337` is the chainId of default `localhost` network. Reference: https://hardhat.org/hardhat-network/docs/reference#chainid
+            // `localhost` network's chainId is not explicitly configured in `hardhat.config.ts`
+            // so we use `31337` as default value
+            chainId: "0x" + (hre.network.config.chainId ?? 31337).toString(16),
             serverPort: this.port
         });
 
