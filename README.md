@@ -22,9 +22,9 @@ There is a sample test hardhat project, just run `npm install` and `npx hardhat 
 
 # To be continue
 
-- [ ] Inject signer to ethers  
+- [x] Inject signer to ethers  
 - [ ] Optimize the launch of the browser  
-- [ ] Optimize the webpage  
+- [x] Optimize the webpage  
 
 ## Special thanks
 [hardhat-metamask-client](https://github.com/deusfinance/Hardhat-metamask-client)
