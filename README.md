@@ -4,7 +4,21 @@ Hardhat Metamask Connector is a tool to connect your metamask with your hardhat 
 
 # Install
 
-`npm install @web3camp/hardhat-metamask-connector` or `yarn @web3camp/hardhat-metamask-connector`
+`npm install @web3camp/hardhat-metamask-connector` 
+
+or 
+
+`yarn @web3camp/hardhat-metamask-connector` to install the npm package.
+
+# Usage
+```
+const { MetamaskConnector } = require("@web3camp/hardhat-metamask-connector");
+```
+or
+
+```
+import { MetamaskConnector } from "@web3camp/hardhat-metamask-connector";
+```
 
 ```
 let connector = new MetamaskConnector();
