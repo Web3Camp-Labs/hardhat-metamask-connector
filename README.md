@@ -28,7 +28,7 @@ let signerAddr = await signer.getAddress();
 
 # Test
 
-There is a sample test hardhat project, just run `npm install` and `npx hardhat run scripts/deploy.ts` to make test.
+There is a sample test hardhat project, just run `npm install` and `npx hardhat run scripts/deploy.ts` to make test in `example` folder.
 
 # The idea
 
