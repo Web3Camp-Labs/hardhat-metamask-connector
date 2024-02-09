@@ -39,6 +39,10 @@ There is a sample test hardhat project, just run `npm install` and `npx hardhat 
 - [x] Inject signer to ethers  
 - [ ] Optimize the launch of the browser  
 - [x] Optimize the webpage  
+- [ ] Add support of other wallets
+    - [ ] Coinbase Wallet
+    - [ ] OKX Wallet
+    - [ ] WalletConnect
 
 ## Special thanks
 [hardhat-metamask-client](https://github.com/deusfinance/Hardhat-metamask-client)
