@@ -53,7 +53,7 @@ export class MetamaskConnector {
         });
 
         this.app.post('/tx-result', (req: Request, res: Response) => {
-            this.transactions.set(req.body.txId, req.body.txHash);
+            this.transactions.set(req.body.id, req.body.hash);
             console.log(`Send transaction success: ${req.body.id}, tx hash: ${ req.body.hash}`);
             res.sendStatus(200);
         });
