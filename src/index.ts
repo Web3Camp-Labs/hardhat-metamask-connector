@@ -142,7 +142,13 @@ export class MetamaskConnector {
             serverPort: this.port
         });
 
-        open(`http://localhost:${this.port}/send-tx`, { app: { name: 'google chrome' } });
+        const url = `http://localhost:${this.port}/send-tx`;
+
+        try {
+            await open(url);
+        } catch (error) {
+            console.log("Error opening your browser, please access this URL:", url);
+        }
     }
 
 }
