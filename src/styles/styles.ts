@@ -160,6 +160,52 @@ body {
     box-shadow: 0 4px 12px rgba(237, 137, 54, 0.3);
 }
 
+.statusBox {
+    border-radius: 12px;
+    padding: 1em 1.5em;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 0.75em;
+    animation: slideIn 0.3s ease-out;
+}
+
+.statusBox .statusIcon {
+    font-size: 1.5em;
+    line-height: 1;
+}
+
+.statusPending {
+    background: linear-gradient(135deg, #90cdf4 0%, #63b3ed 100%);
+    color: #1a365d;
+    box-shadow: 0 4px 12px rgba(99, 179, 237, 0.3);
+    animation: pulse 2s infinite;
+}
+
+.statusSending {
+    background: linear-gradient(135deg, #9decf9 0%, #76e4f7 100%);
+    color: #065666;
+    box-shadow: 0 4px 12px rgba(118, 228, 247, 0.3);
+}
+
+.statusSuccess {
+    background: linear-gradient(135deg, #68d391 0%, #48bb78 100%);
+    color: #22543d;
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+    animation: slideIn 0.3s ease-out;
+}
+
+.statusSuccess strong {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.myButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-10px); }

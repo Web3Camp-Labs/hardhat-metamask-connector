@@ -114,26 +114,60 @@ function generateTransactionFunctions(transactions: TransactionWrapper[], server
                 const transactionParameters = {
                     ${params.join(',\n                    ')}
                 };
-                console.log(transactionParameters);
+                console.log('[BROWSER] Transaction parameters:', transactionParameters);
+
+                // Get UI elements
+                const statusBox = document.getElementById("statusBox${tx.id}");
+                const errorBox = document.getElementById("errorBox${tx.id}");
+                const sendButton = document.getElementById("sendButton${tx.id}");
+
+                // Hide error box
+                errorBox.style.display = "none";
+
+                // Show pending status
+                statusBox.style.display = "flex";
+                statusBox.className = "statusBox statusPending";
+                statusBox.innerHTML = '<span class="statusIcon">⏳</span> <span>Waiting for confirmation...</span>';
+                sendButton.disabled = true;
 
                 try {
+                    console.log('[BROWSER] Requesting transaction from MetaMask...');
                     const txHash = await ethereum.request({
                         method: 'eth_sendTransaction',
                         params: [transactionParameters],
                     });
+                    console.log('[BROWSER] MetaMask returned transaction hash:', txHash);
 
+                    // Show sending status
+                    statusBox.className = "statusBox statusSending";
+                    statusBox.innerHTML = '<span class="statusIcon">📤</span> <span>Transaction sent! Waiting for confirmation...</span>';
+
+                    console.log('[BROWSER] Preparing to POST to server with txId: ${tx.id} and hash:', txHash);
                     var xmlHttp = new XMLHttpRequest();
                     var url = "http://localhost:${serverPort}/tx-result";
                     xmlHttp.open("POST", url, false);
                     xmlHttp.setRequestHeader("Content-Type", "application/json");
-                    xmlHttp.send(JSON.stringify({
+                    const postData = JSON.stringify({
                         id: ${tx.id},
                         hash: txHash
-                    }));
+                    });
+                    console.log('[BROWSER] POSTing to server:', postData);
+                    xmlHttp.send(postData);
+                    console.log('[BROWSER] Server response status:', xmlHttp.status);
+                    console.log('[BROWSER] Server response:', xmlHttp.responseText);
+
+                    // Show success status with hash
+                    statusBox.className = "statusBox statusSuccess";
+                    const shortHash = txHash.slice(0, 10) + '...' + txHash.slice(-8);
+                    statusBox.innerHTML = '<span class="statusIcon">✅</span> <span>Transaction confirmed! Hash: <strong>' + shortHash + '</strong></span>';
+                    console.log('[BROWSER] Transaction successful:', txHash);
                 } catch (err) {
-                    let element = document.getElementById("errorBox${tx.id}");
-                    element.style.display = "flex";
-                    element.innerText = err.message;
+                    console.error('[BROWSER] Error during transaction:', err);
+                    // Show error
+                    statusBox.style.display = "none";
+                    errorBox.style.display = "flex";
+                    errorBox.innerText = err.message;
+                    sendButton.disabled = false;
                 }
             }
         `;

@@ -9,9 +9,11 @@ export const TransactionBox: FC<TransactionBoxProps> = ({ transaction }) => {
             <button
                 onclick={`sendTransaction${transaction.id}()`}
                 class="myButton"
+                id={`sendButton${transaction.id}`}
             >
                 Send Transaction
             </button>
+            <div id={`statusBox${transaction.id}`} class="statusBox" style="display: none;"></div>
             <ErrorBox id={`warningBox${transaction.id}`} type="warning" />
             <ErrorBox id={`errorBox${transaction.id}`} type="error" />
         </div>

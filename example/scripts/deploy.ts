@@ -9,22 +9,19 @@ async function main() {
   let signer = await connector.getSigner();
   console.log("Signer Address: ", await signer.getAddress())
 
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  // Deploy SimpleToken with 1 million initial supply
+  const tokenName = "Test Token";
+  const tokenSymbol = "TEST";
+  const initialSupply = 1000000; // 1 million tokens
 
-  const lockedAmount = ethers.parseEther("0.001");
-
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
+  const token = await ethers.deployContract("SimpleToken", [tokenName, tokenSymbol, initialSupply], {
     signer: signer,
   });
 
-  await lock.waitForDeployment();
+  await token.waitForDeployment();
 
   console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
+    `SimpleToken "${tokenName}" (${tokenSymbol}) with ${initialSupply} total supply deployed to ${token.target}`
   );
 
   connector.close();
