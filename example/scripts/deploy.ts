@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 
-import { MetamaskConnector } from "../../src/index";
+import { MetamaskConnector } from "../../dist/index";
 
 async function main() {
 

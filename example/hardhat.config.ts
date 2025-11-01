@@ -19,7 +19,7 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
     mainnet: {
-      url: "https://eth-mainnet.g.alchemy.com/v2/FU0ujCat3OQd5hIqpddJ94SngVaeSxad",
+      url: "https://eth.llamarpc.com",
       chainId: 1,
       accounts: [`${PRIVATE_KEY}`],
     },
