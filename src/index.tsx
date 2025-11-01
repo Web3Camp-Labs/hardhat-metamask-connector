@@ -21,14 +21,20 @@ export class MetamaskConnector {
     server: any;
 
     constructor(defaultServerPort: number = 8989) {
-        console.log("MetamaskConnector: Initializing...")
-
         if (hre.network == null) {
             throw new Error("Invalid configuration");
         }
-        console.log("network", hre.network);
 
         this.port = defaultServerPort;
+
+        // Log essential network information
+        const chainId = hre.network.config.chainId ?? 31337;
+        const networkUrl = (hre.network.config as any).url || 'http://127.0.0.1:8545';
+        console.log("MetamaskConnector: Initializing...");
+        console.log(`  Network: ${hre.network.name}`);
+        console.log(`  Chain ID: ${chainId}`);
+        console.log(`  RPC URL: ${networkUrl}`);
+
         this.app = new Hono();
         this.setupRoutes();
         this.startServer();

@@ -19,9 +19,6 @@ function generateGlobalVariables(): string {
 function generateConnectFunction(chainId: string): string {
     return `
         async function connect() {
-            if (typeof window.ethereum !== 'undefined') {
-                console.log('MetaMask is installed!');
-            }
             const accounts = await ethereum.request({
                 method: 'eth_requestAccounts'
             });
@@ -118,7 +115,6 @@ function generateTransactionFunctions(transactions: TransactionWrapper[], server
                 const transactionParameters = {
                     ${params.join(',\n                    ')}
                 };
-                console.log('[BROWSER] Transaction parameters:', transactionParameters);
 
                 // Get UI elements
                 const statusBox = document.getElementById("statusBox${tx.id}");
@@ -135,38 +131,31 @@ function generateTransactionFunctions(transactions: TransactionWrapper[], server
                 sendButton.disabled = true;
 
                 try {
-                    console.log('[BROWSER] Requesting transaction from MetaMask...');
                     const txHash = await ethereum.request({
                         method: 'eth_sendTransaction',
                         params: [transactionParameters],
                     });
-                    console.log('[BROWSER] MetaMask returned transaction hash:', txHash);
+                    console.log('Transaction sent:', txHash);
 
                     // Show sending status
                     statusBox.className = "statusBox statusSending";
                     statusBox.innerHTML = '<span class="statusIcon">📤</span> <span>Transaction sent! Waiting for confirmation...</span>';
 
-                    console.log('[BROWSER] Preparing to POST to server with txId: ${tx.id} and hash:', txHash);
                     var xmlHttp = new XMLHttpRequest();
                     var url = "http://localhost:${serverPort}/tx-result";
                     xmlHttp.open("POST", url, false);
                     xmlHttp.setRequestHeader("Content-Type", "application/json");
-                    const postData = JSON.stringify({
+                    xmlHttp.send(JSON.stringify({
                         id: ${tx.id},
                         hash: txHash
-                    });
-                    console.log('[BROWSER] POSTing to server:', postData);
-                    xmlHttp.send(postData);
-                    console.log('[BROWSER] Server response status:', xmlHttp.status);
-                    console.log('[BROWSER] Server response:', xmlHttp.responseText);
+                    }));
 
                     // Show success status with hash
                     statusBox.className = "statusBox statusSuccess";
                     const shortHash = txHash.slice(0, 10) + '...' + txHash.slice(-8);
                     statusBox.innerHTML = '<span class="statusIcon">✅</span> <span>Transaction confirmed! Hash: <strong>' + shortHash + '</strong></span>';
-                    console.log('[BROWSER] Transaction successful:', txHash);
                 } catch (err) {
-                    console.error('[BROWSER] Error during transaction:', err);
+                    console.error('Transaction error:', err.message || err);
                     // Show error
                     statusBox.style.display = "none";
                     errorBox.style.display = "flex";
@@ -209,11 +198,10 @@ function generateInitFunction(transactions: TransactionWrapper[], serverPort: nu
                 const oldIds = currentTransactionIds.join(',');
 
                 if (newIds !== oldIds && data.transactionIds.length > 0) {
-                    console.log('[UI] New transactions detected, reloading page...');
                     window.location.reload();
                 }
             } catch (error) {
-                console.error('[UI] Error checking for updates:', error);
+                console.error('Error checking for updates:', error);
             }
         }
 
@@ -224,18 +212,17 @@ function generateInitFunction(transactions: TransactionWrapper[], serverPort: nu
                     const accounts = await ethereum.request({ method: 'eth_accounts' });
                     if (accounts.length > 0) {
                         // Wallet already connected, update UI
-                        console.log('[UI] Wallet already connected:', accounts[0]);
+                        console.log('Wallet connected:', accounts[0]);
                         updateAccounts(accounts);
                         ethereum.on('accountsChanged', function(accounts) {
                             updateAccounts(accounts);
                         });
                     } else {
                         // No wallet connected, show connect button
-                        console.log('[UI] No wallet connected, showing connect button');
                         document.getElementById('b1').style.display = 'block';
                     }
                 } catch (error) {
-                    console.error('[UI] Error checking wallet connection:', error);
+                    console.error('Error checking wallet connection:', error);
                     document.getElementById('b1').style.display = 'block';
                 }
             } else {
@@ -245,7 +232,6 @@ function generateInitFunction(transactions: TransactionWrapper[], serverPort: nu
 
             // Start polling for updates every 2 seconds
             pollingInterval = setInterval(checkForUpdates, 2000);
-            console.log('[UI] Started polling for transaction updates');
 
             setTimeout(() => {
                 ${errorWarningChecks}
