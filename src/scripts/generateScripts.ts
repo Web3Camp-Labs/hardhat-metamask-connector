@@ -8,7 +8,7 @@ export function generateScripts(props: TransactionPageProps): string {
         ${generateSignerFunction(props.serverPort)}
         ${generateTransactionFunctions(props.transactions, props.serverPort)}
         ${generateShowGlobalErrorFunction()}
-        ${generateInitFunction(props.transactions)}
+        ${generateInitFunction(props.transactions, props.serverPort)}
     `;
 }
 
@@ -188,12 +188,35 @@ function generateShowGlobalErrorFunction(): string {
     `;
 }
 
-function generateInitFunction(transactions: TransactionWrapper[]): string {
+function generateInitFunction(transactions: TransactionWrapper[], serverPort: number): string {
     const errorWarningChecks = transactions.map(tx => `
         // Transaction ${tx.id} error/warning handling can be added here if needed
     `).join('\n');
 
+    const currentTxIds = transactions.map(tx => tx.id).join(',');
+
     return `
+        let currentTransactionIds = [${currentTxIds}];
+        let pollingInterval = null;
+
+        async function checkForUpdates() {
+            try {
+                const response = await fetch('http://localhost:${serverPort}/status');
+                const data = await response.json();
+
+                // Check if transaction IDs have changed
+                const newIds = data.transactionIds.join(',');
+                const oldIds = currentTransactionIds.join(',');
+
+                if (newIds !== oldIds && data.transactionIds.length > 0) {
+                    console.log('[UI] New transactions detected, reloading page...');
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('[UI] Error checking for updates:', error);
+            }
+        }
+
         async function initialize() {
             // Check if wallet is already connected
             if (typeof window.ethereum !== 'undefined') {
@@ -219,6 +242,10 @@ function generateInitFunction(transactions: TransactionWrapper[]): string {
                 // MetaMask not installed
                 document.getElementById('b1').style.display = 'block';
             }
+
+            // Start polling for updates every 2 seconds
+            pollingInterval = setInterval(checkForUpdates, 2000);
+            console.log('[UI] Started polling for transaction updates');
 
             setTimeout(() => {
                 ${errorWarningChecks}

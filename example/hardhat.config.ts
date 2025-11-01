@@ -26,17 +26,7 @@ const config: HardhatUserConfig = {
       url: "https://eth.llamarpc.com",
       chainId: 1,
       accounts: [`${PRIVATE_KEY}`],
-    },
-    polygon: {
-      url: "https://polygon-mainnet.g.alchemy.com/v2/-MLinGy2l91vLVZWXmRfNYf9DavMxaEA",
-      chainId: 137,
-      accounts: [`${PRIVATE_KEY}`],
-    },
-    sepolia: {
-      url: "https://eth-sepolia.g.alchemy.com/v2/H43zK7UnIN2v7u2ZoTbizIPnXkylKIZl",
-      chainId: 11155111,
-      accounts: [`${PRIVATE_KEY}`],
-    },
+    }
   }
 };
 
