@@ -37,7 +37,7 @@ There is a sample test hardhat project, just run `npm install` and `npx hardhat 
 # To be continue
 
 - [x] Inject signer to ethers  
-- [ ] Optimize the launch of the browser  
+- [x] Optimize the launch of the browser  
 - [x] Optimize the webpage  
 - [ ] Add support of other wallets
     - [ ] Coinbase Wallet
