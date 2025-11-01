@@ -26,6 +26,10 @@ function generateConnectFunction(chainId: string): string {
                 method: 'eth_requestAccounts'
             });
             updateAccounts(accounts);
+
+            // Hide connect button after successful connection
+            document.getElementById('b1').style.display = 'none';
+
             ethereum.on('accountsChanged', function(accounts) {
                 updateAccounts(accounts);
             });
@@ -190,13 +194,37 @@ function generateInitFunction(transactions: TransactionWrapper[]): string {
     `).join('\n');
 
     return `
-        function initialize() {
+        async function initialize() {
+            // Check if wallet is already connected
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        // Wallet already connected, update UI
+                        console.log('[UI] Wallet already connected:', accounts[0]);
+                        updateAccounts(accounts);
+                        ethereum.on('accountsChanged', function(accounts) {
+                            updateAccounts(accounts);
+                        });
+                    } else {
+                        // No wallet connected, show connect button
+                        console.log('[UI] No wallet connected, showing connect button');
+                        document.getElementById('b1').style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('[UI] Error checking wallet connection:', error);
+                    document.getElementById('b1').style.display = 'block';
+                }
+            } else {
+                // MetaMask not installed
+                document.getElementById('b1').style.display = 'block';
+            }
+
             setTimeout(() => {
                 ${errorWarningChecks}
             }, 300);
         }
 
         initialize();
-        connect();
     `;
 }
