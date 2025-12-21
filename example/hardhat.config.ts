@@ -26,6 +26,12 @@ const config: HardhatUserConfig = {
       url: "https://eth.llamarpc.com",
       chainId: 1,
       accounts: [`${PRIVATE_KEY}`],
+    },
+    polygon: {
+      url: "https://polygon-mainnet.infura.io/v3/50676f4e9b9d4780a34fc8a503ff7f4f",
+      chainId: 137,
+      // Using MetamaskConnector - no private key needed
+      accounts: [`${PRIVATE_KEY}`]
     }
   }
 };

@@ -8,7 +8,7 @@ export function generateScripts(props: TransactionPageProps): string {
         ${generateSignerFunction(props.serverPort)}
         ${generateTransactionFunctions(props.transactions, props.serverPort)}
         ${generateShowGlobalErrorFunction()}
-        ${generateInitFunction(props.transactions, props.serverPort)}
+        ${generateInitFunction(props.transactions, props.serverPort, props.chainId)}
     `;
 }
 
@@ -99,7 +99,7 @@ function generateSignerFunction(serverPort: number): string {
 function generateTransactionFunctions(transactions: TransactionWrapper[], serverPort: number): string {
     return transactions.map(tx => {
         const params: string[] = [
-            'from: ethereum.selectedAddress'
+            'from: account'
         ];
 
         if (tx.transaction.to) params.push(`to: '${tx.transaction.to}'`);
@@ -112,6 +112,12 @@ function generateTransactionFunctions(transactions: TransactionWrapper[], server
 
         return `
             async function sendTransaction${tx.id}() {
+                // Validate account is connected
+                if (!account) {
+                    showGlobalError(new Error("Please connect to MetaMask first"));
+                    return;
+                }
+
                 const transactionParameters = {
                     ${params.join(',\n                    ')}
                 };
@@ -131,15 +137,37 @@ function generateTransactionFunctions(transactions: TransactionWrapper[], server
                 sendButton.disabled = true;
 
                 try {
-                    const txHash = await ethereum.request({
+                    // Check current network
+                    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                    console.log('Current MetaMask chainId:', chainId);
+
+                    const txHash = await window.ethereum.request({
                         method: 'eth_sendTransaction',
                         params: [transactionParameters],
                     });
+
+                    if (!txHash) {
+                        throw new Error('No transaction hash returned');
+                    }
+
                     console.log('Transaction sent:', txHash);
+
+                    // Show explorer link based on chainId
+                    const explorerUrls = {
+                        '0x1': 'https://etherscan.io/tx/',
+                        '0x89': 'https://polygonscan.com/tx/',
+                        '0xa': 'https://optimistic.etherscan.io/tx/',
+                        '0xa4b1': 'https://arbiscan.io/tx/',
+                        '0x2105': 'https://basescan.org/tx/'
+                    };
+                    const explorerUrl = explorerUrls[chainId];
+                    if (explorerUrl) {
+                        console.log('Verify at: ' + explorerUrl + txHash);
+                    }
 
                     // Show sending status
                     statusBox.className = "statusBox statusSending";
-                    statusBox.innerHTML = '<span class="statusIcon">📤</span> <span>Transaction sent! Waiting for confirmation...</span>';
+                    statusBox.innerHTML = '<span class="statusIcon">📤</span> <span>Transaction sent! Hash: ' + txHash.slice(0, 10) + '...</span>';
 
                     var xmlHttp = new XMLHttpRequest();
                     var url = "http://localhost:${serverPort}/tx-result";
@@ -153,13 +181,13 @@ function generateTransactionFunctions(transactions: TransactionWrapper[], server
                     // Show success status with hash
                     statusBox.className = "statusBox statusSuccess";
                     const shortHash = txHash.slice(0, 10) + '...' + txHash.slice(-8);
-                    statusBox.innerHTML = '<span class="statusIcon">✅</span> <span>Transaction confirmed! Hash: <strong>' + shortHash + '</strong></span>';
+                    statusBox.innerHTML = '<span class="statusIcon">✅</span> <span>Transaction broadcast! Hash: <strong>' + shortHash + '</strong></span>';
                 } catch (err) {
-                    console.error('Transaction error:', err.message || err);
+                    console.error('Transaction error:', err);
                     // Show error
                     statusBox.style.display = "none";
                     errorBox.style.display = "flex";
-                    errorBox.innerText = err.message;
+                    errorBox.innerText = err.message || err.toString();
                     sendButton.disabled = false;
                 }
             }
@@ -177,7 +205,7 @@ function generateShowGlobalErrorFunction(): string {
     `;
 }
 
-function generateInitFunction(transactions: TransactionWrapper[], serverPort: number): string {
+function generateInitFunction(transactions: TransactionWrapper[], serverPort: number, chainId: string): string {
     const errorWarningChecks = transactions.map(tx => `
         // Transaction ${tx.id} error/warning handling can be added here if needed
     `).join('\n');
@@ -206,17 +234,60 @@ function generateInitFunction(transactions: TransactionWrapper[], serverPort: nu
         }
 
         async function initialize() {
+            // Wait a bit for MetaMask to fully initialize
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             // Check if wallet is already connected
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    const accounts = await ethereum.request({ method: 'eth_accounts' });
-                    if (accounts.length > 0) {
+                    // Use a safer method to check for accounts
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' }).catch(err => {
+                        console.warn('eth_accounts failed:', err);
+                        return [];
+                    });
+
+                    if (accounts && accounts.length > 0) {
                         // Wallet already connected, update UI
-                        console.log('Wallet connected:', accounts[0]);
                         updateAccounts(accounts);
-                        ethereum.on('accountsChanged', function(accounts) {
+                        window.ethereum.on('accountsChanged', function(accounts) {
                             updateAccounts(accounts);
                         });
+
+                        // IMPORTANT: Switch to the correct network even if already connected
+                        try {
+                            await window.ethereum.request({
+                                method: 'wallet_switchEthereumChain',
+                                params: [{ chainId: '${chainId}' }]
+                            });
+                            console.log('Switched to chainId:', '${chainId}');
+                        } catch (switchError) {
+                            // This error code indicates that the chain has not been added to MetaMask
+                            if (switchError.code === 4902) {
+                                try {
+                                    await window.ethereum.request({
+                                        method: 'wallet_addEthereumChain',
+                                        params: [{
+                                            chainId: '${chainId}',
+                                            chainName: 'Hardhat Local',
+                                            nativeCurrency: {
+                                                name: 'ETH',
+                                                symbol: 'ETH',
+                                                decimals: 18
+                                            },
+                                            rpcUrls: ['http://127.0.0.1:8545'],
+                                            blockExplorerUrls: null
+                                        }]
+                                    });
+                                } catch (addError) {
+                                    showGlobalError(addError);
+                                }
+                            } else if (switchError.code === 4001) {
+                                // User rejected the request
+                                showGlobalError(new Error('Please switch to the correct network in MetaMask'));
+                            } else {
+                                showGlobalError(switchError);
+                            }
+                        }
                     } else {
                         // No wallet connected, show connect button
                         document.getElementById('b1').style.display = 'block';
@@ -227,6 +298,7 @@ function generateInitFunction(transactions: TransactionWrapper[], serverPort: nu
                 }
             } else {
                 // MetaMask not installed
+                showGlobalError(new Error('MetaMask is not installed. Please install MetaMask extension.'));
                 document.getElementById('b1').style.display = 'block';
             }
 
@@ -238,6 +310,11 @@ function generateInitFunction(transactions: TransactionWrapper[], serverPort: nu
             }, 300);
         }
 
-        initialize();
+        // Only initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            initialize();
+        }
     `;
 }
