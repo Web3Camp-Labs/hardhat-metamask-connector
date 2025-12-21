@@ -112,6 +112,10 @@ Configure networks in your `hardhat.config.ts`:
 ```typescript
 import { HardhatUserConfig } from "hardhat/config";
 
+// You can use any dummy private key here - it won't be used
+// This is just to satisfy Hardhat's requirement
+const DUMMY_PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+
 const config: HardhatUserConfig = {
   networks: {
     localhost: {
@@ -121,10 +125,14 @@ const config: HardhatUserConfig = {
     polygon: {
       url: "https://polygon-mainnet.infura.io/v3/YOUR_INFURA_KEY",
       chainId: 137,
+      // IMPORTANT: Hardhat requires the accounts field even though we use MetaMask
+      // You can use any dummy private key here - it will NOT be used
+      accounts: [DUMMY_PRIVATE_KEY]
     },
     mainnet: {
       url: "https://eth.llamarpc.com",
       chainId: 1,
+      accounts: [DUMMY_PRIVATE_KEY]
     }
   }
 };
@@ -132,7 +140,7 @@ const config: HardhatUserConfig = {
 export default config;
 ```
 
-**Note**: You don't need to specify `accounts` when using MetaMask Connector - that's the whole point!
+> **⚠️ Important Hardhat Quirk**: Even though MetaMask Connector doesn't use private keys, **Hardhat still requires the `accounts` field** in network configuration for non-localhost networks. You can use any dummy private key (like the default Hardhat test key shown above) - it will never be used. Your actual transactions will be signed by MetaMask!
 
 ## Complete Example
 
@@ -167,6 +175,11 @@ When using the connector, you'll see helpful logs in the browser console (F12):
 ### Transaction not appearing on block explorer
 - Check the browser console for the chainId - ensure it matches your expected network
 - Verify MetaMask is on the correct network
+
+### Error: "Cannot read properties of undefined"
+- Make sure you have the `accounts` field in your network configuration in `hardhat.config.ts`
+- Hardhat requires this field even though MetaMask Connector doesn't use it
+- Use a dummy private key: `accounts: ["0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"]`
 
 ### Port already in use
 - Change the port: `new MetamaskConnector(9000)`
